@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         //initialize all the UI objects
         profileImageView = (ImageView) findViewById(R.id.imageView);
         loginButton = (LoginButton) findViewById(R.id.login_button);        //facebook login button
-
+        loginButton.setHeight(100);
         /* set the permission, user will see what are the data app will use
          * these permission is a must if app wants anything except public info
          * otherwise callback will only return id, name and gender (if available)
@@ -125,10 +125,23 @@ public class MainActivity extends AppCompatActivity {
                     .placeholder(R.drawable.noimage)
                     .error(R.drawable.noimage)
                     .into(profileImageView);
+            sendDataToNextActivity(email, birthDay, name, gender,userId,profilePicture.toString());
             Log.d("sayan", "name: "+name+" and gender: "+gender+" and birthday: "+birthDay+" and email: "+email);
         } catch (JSONException | MalformedURLException e) {
             e.printStackTrace();
         }
+    }
+
+    private void sendDataToNextActivity(String email, String birthDay, String name, String gender, String userId, String image) {
+        Intent intent = new Intent(this, ShareDataToFB.class);
+        intent.putExtra("email", email);
+        intent.putExtra("birthDay", birthDay);
+        intent.putExtra("name", name);
+        intent.putExtra("gender", gender);
+        intent.putExtra("userId", userId);
+        intent.putExtra("image", image);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 
     /*
@@ -141,5 +154,44 @@ public class MainActivity extends AppCompatActivity {
          * call mcallbackManager's onActivityResult method with the result data
          */
         mcallbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    /*
+     * check if already logged in
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (AccessToken.getCurrentAccessToken() == null);           //means not logged in
+            else {
+            /*
+             * means user already logged in
+             * request profile information and get response as a JSONObject
+             */
+            GraphRequest request = GraphRequest.newMeRequest(
+                    AccessToken.getCurrentAccessToken(),
+                    new GraphRequest.GraphJSONObjectCallback() {
+                        @Override
+                        public void onCompleted(JSONObject object, GraphResponse response) {
+                            Log.v("LoginActivity", response.toString());
+                            // object has all the asked result in it
+                            putFacebookProfileInformation(object);
+                        }
+                    });
+            /*
+            * this is required for setting which data app wants to get
+            */
+            Bundle parameters = new Bundle();
+            parameters.putString("fields", "id, name, email, gender, birthday, first_name, last_name");
+            request.setParameters(parameters);
+            request.executeAsync();
+
+            //set a 1 sec delay for loading data from facebook
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
