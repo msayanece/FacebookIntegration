@@ -22,7 +22,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ShareDataToFB"></activity>
+        <activity android:name=".ShareDataToFB" />
+        <activity android:name=".ShowFacebookPost" />
+        <activity android:name=".ShowPostDetails"></activity>
     </application>
 
 </manifest>

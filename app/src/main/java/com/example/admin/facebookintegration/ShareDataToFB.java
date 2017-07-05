@@ -17,7 +17,13 @@ import com.facebook.login.LoginManager;
 import com.facebook.share.model.ShareHashtag;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,15 +114,34 @@ public class ShareDataToFB extends AppCompatActivity {
 
     //In order to get the user timeline posts, we need to make a GraphRequest:
     // for understanding: https://developers.facebook.com/tools/explorer/
+    ///1177127702297877_1559901827353794?fields=permalink_url
     private void getPosts(){
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(), "/me/posts", null, HttpMethod.GET,
                 new GraphRequest.Callback() {
                     public void onCompleted(GraphResponse response) {
-                        Log.e("sayan",response.toString());
+                        JSONObject responseObject = response.getJSONObject();
+                        try {
+                            JSONArray dataArray = responseObject.getJSONArray("data");
+                            Gson gson = new Gson();
+                            ArrayList<FacebookPostModel> posts = gson.fromJson(dataArray.toString(), new TypeToken<List<FacebookPostModel>>(){}.getType());
+                            toNextActivity(posts);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        Log.e("sayan======>",response.toString());
+                        Log.e("sayan===>","responseObject: "+responseObject.toString());
                     }
                 }
         ).executeAsync();
+    }
+
+    private void toNextActivity(ArrayList<FacebookPostModel> posts) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList("posts", posts);
+        Intent intent = new Intent(this, ShowFacebookPost.class);
+        intent.putExtra("bundle", bundle);
+        startActivity(intent);
     }
 
     //log out the user and send to main activity

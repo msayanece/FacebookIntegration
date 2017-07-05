@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 // tutorial: https://www.sitepoint.com/integrating-the-facebook-graph-api-in-android/
+//graph api explorer: https://developers.facebook.com/tools/explorer?method=GET&path=me%3Ffields%3Dposts&version=v2.9
 // go to jre bin folder start cmd enter:
 //keytool -exportcert -alias androiddebugkey -keystore C:\Users\Admin\.android\debug.keystore | C:\Users\Admin\Desktop\s\bin\openssl.exe sha1 -binary | C:\Users\Admin\Desktop\s\bin\openssl.exe base64
 public class MainActivity extends AppCompatActivity {
